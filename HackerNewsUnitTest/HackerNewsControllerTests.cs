@@ -18,13 +18,30 @@ namespace HackerNewsUnitTest
 
             var controller = new HackerNewsController(memoryCacheMock.Object, hackerNewsLogicMock.Object);
 
-            var itemList = new List<int> { 1, 2, 3 };
+            var itemList = new List<int> { 40832214, 40848340, 40845133 };
             var hackerItems = new List<HackerNewsItemModel>
             {
-                new HackerNewsItemModel { Id = 1, title = "Item 1" },
-                new HackerNewsItemModel { Id = 2, title = "Item 2" },
-                new HackerNewsItemModel { Id = 3, title = "Item 3" }
+                new HackerNewsItemModel {
+                                        Id = 40832214,
+                                        title = "Thousands of Pablo Picasso’s works in a new online archive",
+                                        url = "https://www.smithsonianmag.com/smart-news/thousands-of-pablo-picassos-works-are-now-online-180984597/"
+                                        },
+               new HackerNewsItemModel  {
+                                        Id = 40848340,
+                                        title = "A Survey of General-Purpose Polyhedral Compilers",
+                                        url= "https://dl.acm.org/doi/abs/10.1145/3674735"
+                                        },
+                new HackerNewsItemModel  {
+                                        Id = 40845133,
+                                        title = "Arctic 'dirty fuel' ban for ships comes into force",
+                                        url ="https://www.bbc.com/news/articles/cpv3dk4ydr3o"
+                                        }
             };
+            object cachedItems = null;
+            memoryCacheMock.Setup(mc => mc.TryGetValue(It.IsAny<object>(), out cachedItems)).Returns(false);
+            var cacheEntryMock = new Mock<ICacheEntry>();
+            memoryCacheMock.Setup(mc => mc.CreateEntry(It.IsAny<object>())).Returns(cacheEntryMock.Object);
+
 
             hackerNewsLogicMock.Setup(x => x.GetTopStories()).ReturnsAsync(itemList);
             hackerNewsLogicMock.Setup(x => x.GetHackerNewsItem(itemList)).ReturnsAsync(hackerItems);

@@ -34,6 +34,7 @@ namespace HackerNewsAPI.Controllers
                     List<int> itemList = await _hackerNewsLogic.GetTopStories();
                     if (itemList != null)
                     {
+                        
                         hackerItems = await _hackerNewsLogic.GetHackerNewsItem(itemList);
 
                         if (hackerItems != null)
