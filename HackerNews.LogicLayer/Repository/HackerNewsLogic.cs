@@ -1,6 +1,7 @@
 ﻿using HackerNews.LogicLayer.Interface;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,12 +41,13 @@ namespace HackerNews.LogicLayer.Repository
 
         public async Task<List<HackerNewsItemModel>> GetHackerNewsItem(List<int> args)
         {
-            List<HackerNewsItemModel> hackerNewsList = new List<HackerNewsItemModel>();
+            ConcurrentBag<HackerNewsItemModel> hackerNewsList = new ConcurrentBag<HackerNewsItemModel>();
+
             try
             {
-                foreach (int i in args)
+                var tasks = args.Select(async i =>
                 {
-                    string url = "https://hacker-news.firebaseio.com/v0/item/" + i + ".json?print=pretty";
+                    string url = $"https://hacker-news.firebaseio.com/v0/item/{i}.json?print=pretty";
 
                     using (HttpClient client = new HttpClient())
                     {
@@ -56,14 +58,15 @@ namespace HackerNews.LogicLayer.Repository
                         HackerNewsItemModel item = JsonConvert.DeserializeObject<HackerNewsItemModel>(responseBody);
                         hackerNewsList.Add(item);
                     }
-                }
+                });
+
+                await Task.WhenAll(tasks);
             }
             catch (HttpRequestException e)
             {
                 Console.WriteLine($"Request error: {e.Message}");
             }
-
-            return hackerNewsList.Where(x=>!string.IsNullOrEmpty(x.url)).ToList();
+            return hackerNewsList.Where(x => !string.IsNullOrEmpty(x.url)).ToList();
         }
     }
 }
